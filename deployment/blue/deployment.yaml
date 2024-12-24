@@ -1,1 +1,35 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: patient-record-service-blue
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: patient-record-service
+      env: blue
+  template:
+    metadata:
+      labels:
+        app: patient-record-service
+        env: blue
+    spec:
+      containers:
+      - name: patient-record-service
+        image: ranaliw/patient-record-service:latest
+        ports:
+        - containerPort: 80
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: patient-record-service-blue
+spec:
+  selector:
+    app: patient-record-service
+    env: blue
+  ports:
+  - protocol: TCP
+    port: 80
+    targetPort: 80
 
