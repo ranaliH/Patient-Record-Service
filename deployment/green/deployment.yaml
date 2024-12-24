@@ -3,7 +3,7 @@ kind: Deployment
 metadata:
   name: patient-record-service-green
 spec:
-  replicas: 1
+  replicas: 2
   selector:
     matchLabels:
       app: patient-record-service
@@ -17,8 +17,30 @@ spec:
       containers:
       - name: patient-record-service
         image: ranaliw/patient-record-service:latest
+        imagePullPolicy: Always
         ports:
-        - containerPort: 80
+        - containerPort: 3001
+        env:
+            - name: DB_HOST
+              valueFrom:
+                secretKeyRef:
+                  name: healthsync-db-credentials  
+                  key: DB_HOST
+            - name: DB_USER
+              valueFrom:
+                secretKeyRef:
+                  name: healthsync-db-credentials 
+                  key: DB_USER
+            - name: DB_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: healthsync-db-credentials
+                  key: DB_PASSWORD
+            - name: DB_NAME
+              valueFrom:
+                secretKeyRef:
+                  name: healthsync-db-credentials
+                  key: DB_NAME
 ---
 apiVersion: v1
 kind: Service
@@ -29,7 +51,7 @@ spec:
     app: patient-record-service
     env: green
   ports:
-  - protocol: TCP
-    port: 80
-    targetPort: 80
-
+    - protocol: TCP
+      port: 80
+      targetPort: 3001
+  type: LoadBalancer
