@@ -24,9 +24,13 @@ jobs:
         docker build -t ranaliw/patient-record-service:${{ github.sha }} .
         docker push ranaliw/patient-record-service:${{ github.sha }}
 
-    - name: Update Kubernetes Deployment
+    - name: Set up Kubeconfig
+      run: |
+        mkdir -p $HOME/.kube
+        echo "${{ secrets.KUBECONFIG }}" > $HOME/.kube/config
       env:
-        KUBECONFIG: ${{ secrets.KUBECONFIG }}
+        KUBECONFIG: $HOME/.kube/config
+
+    - name: Update Kubernetes Deployment
       run: |
         kubectl set image deployment/patient-record-service-blue patient-record-service=ranaliw/patient-record-service:${{ github.sha }} --record
-
